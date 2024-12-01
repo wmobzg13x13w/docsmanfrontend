@@ -153,16 +153,16 @@ const EmployeesTable = () => {
                     <td>{tdata.cin}</td>
                     <td>{tdata.email}</td>
                     <td>{tdata.phone}</td>
-                    <AddEmployeeModal
-                      isOpen={isAddModalOpen}
-                      toggleModal={toggleAddModal}
-                      fetchAllEmployees={fetchAllEmployees}
-                    />
                   </tr>
                 ))}
               </tbody>
             </Table>
           )}
+          <AddEmployeeModal
+            isOpen={isAddModalOpen}
+            toggleModal={toggleAddModal}
+            fetchAllEmployees={fetchAllEmployees}
+          />
         </CardBody>
       </Card>
     </div>
