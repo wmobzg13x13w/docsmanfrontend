@@ -28,14 +28,13 @@ const ThemeRoutes = [
     ),
     children: [
       { path: "/", element: <Navigate to='/dashboard' /> },
-      { path: "/files", exact: true, element: <Files /> },
-      { path: "/employees", exact: true, element: <Employees /> },
-      { path: "/dashboard", exact: true, element: <Dashboard /> },
+      { path: "/files", element: <Files /> },
+      { path: "/employees", element: <Employees /> },
+      { path: "/dashboard", element: <Dashboard /> },
     ],
   },
   {
     path: "/login",
-    exact: true,
     element: <Login />,
   },
 ];

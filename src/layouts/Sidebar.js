@@ -50,6 +50,15 @@ const Sidebar = () => {
     }
   };
 
+  const handleLinkClick = (href) => {
+    if (location.pathname === href) {
+      // Force refresh by navigating to the same route
+      navigate(0); // This reloads the page
+    } else {
+      navigate(href);
+    }
+  };
+
   return (
     <div>
       <div className='d-flex align-items-center'></div>
@@ -79,7 +88,8 @@ const Sidebar = () => {
                   location.pathname === navi.href
                     ? "active nav-link py-3"
                     : "nav-link text-secondary py-3"
-                }>
+                }
+                onClick={() => handleLinkClick(navi.href)}>
                 <i className={navi.icon}></i>
                 <span className='ms-3 d-inline-block'>{navi.title}</span>
               </Link>

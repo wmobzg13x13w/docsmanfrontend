@@ -1,9 +1,10 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { Container } from "reactstrap";
 
 const FullLayout = () => {
+  const location = useLocation();
   return (
     <main>
       {/********header**********/}
@@ -17,7 +18,7 @@ const FullLayout = () => {
         <div className='contentArea'>
           {/********Middle Content**********/}
           <Container className='p-4' fluid>
-            <Outlet />
+            <Outlet key={location.key} />
           </Container>
         </div>
       </div>
