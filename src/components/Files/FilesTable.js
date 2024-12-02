@@ -200,6 +200,33 @@ const FilesTable = () => {
         fetchFiles={fetchFiles}
         allEmployees={allEmployees}
       />
+      {selectedFile && (
+        <EditFileModal
+          isOpen={isEditModalOpen}
+          toggleModal={toggleEditModal}
+          selectedFile={selectedFile}
+          fetchFiles={fetchFiles}
+          allEmployees={allEmployees}
+          setSelectedFile={setSelectedFile}
+        />
+      )}
+
+      {selectedFileForDelete && (
+        <DeleteFileModal
+          isOpen={isDeleteModalOpen}
+          toggleModal={toggleDeleteModal}
+          selectedFile={selectedFileForDelete}
+          fetchFiles={fetchFiles}
+          setFiles={setFiles}
+        />
+      )}
+      {selectedFileForDetails && (
+        <FileDetailsModal
+          isOpen={isFileDetailsModalOpen}
+          toggleModal={toggleFileDetailsModal}
+          file={selectedFileForDetails}
+        />
+      )}
     </div>
   );
 };
