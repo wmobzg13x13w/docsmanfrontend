@@ -16,6 +16,8 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import AddEmployeeModal from "./addEmployeeModal.js";
 import axios from "axios";
 import { AuthContext } from "../../contexts/AuthContext.js";
+import DeleteEmployeeModal from "./DeleteEmployyeModal.js";
+import EditEmployeeModal from "./EditEmployeeModal.js";
 
 const tableData = [
   {
@@ -66,7 +68,30 @@ const tableData = [
 ];
 
 const EmployeesTable = () => {
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  const toggleEditModal = () => {
+    setIsEditModalOpen(!isEditModalOpen);
+  };
+
+  const handleEditEmployee = (employee_id) => {
+    setSelectedEmployee(employee_id);
+    toggleEditModal();
+  };
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedEmployeeForDelete, setSelectedEmployeeForDelete] =
+    useState(null);
+
+  const toggleDeleteModal = () => {
+    setIsDeleteModalOpen(!isDeleteModalOpen);
+  };
+  const handleDeleteEpmloyee = (employeeId) => {
+    setSelectedEmployeeForDelete(employeeId);
+    toggleDeleteModal();
+  };
 
   const toggleAddModal = () => {
     setIsAddModalOpen(!isAddModalOpen);
@@ -128,6 +153,7 @@ const EmployeesTable = () => {
 
                   <th>Email</th>
                   <th>Num Tel</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -153,6 +179,22 @@ const EmployeesTable = () => {
                     <td>{tdata.cin}</td>
                     <td>{tdata.email}</td>
                     <td>{tdata.phone}</td>
+                    <div className='d-flex gap-2'>
+                      <Button
+                        className='btn'
+                        outline
+                        color='primary'
+                        onClick={() => handleEditEmployee(tdata._id)}>
+                        <i className='bi bi-pencil-square'></i>
+                      </Button>
+                      <Button
+                        className='btn'
+                        outline
+                        color='danger'
+                        onClick={() => handleDeleteEpmloyee(tdata._id)}>
+                        <i className='bi bi-trash'></i>
+                      </Button>
+                    </div>
                   </tr>
                 ))}
               </tbody>
@@ -165,6 +207,26 @@ const EmployeesTable = () => {
           />
         </CardBody>
       </Card>
+      {selectedEmployeeForDelete && (
+        <DeleteEmployeeModal
+          isOpen={isDeleteModalOpen}
+          toggleModal={toggleDeleteModal}
+          selectedEmployee={selectedEmployeeForDelete}
+          fetchAllEmployees={fetchAllEmployees}
+          setAllEmployees={setAllEmployees}
+        />
+      )}
+
+      {selectedEmployee && (
+        <EditEmployeeModal
+          isOpen={isEditModalOpen}
+          toggleModal={toggleEditModal}
+          selectedEmployee={selectedEmployee}
+          fetchAllEmployees={fetchAllEmployees}
+          allEmployees={allEmployees}
+          setSelectedEmployee={setSelectedEmployee}
+        />
+      )}
     </div>
   );
 };
