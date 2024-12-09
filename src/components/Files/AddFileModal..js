@@ -15,11 +15,10 @@ import { AuthContext } from "../../contexts/AuthContext";
 
 const AddFileModal = ({ isOpen, toggleModal, allEmployees, fetchFiles }) => {
   const [newFile, setNewFile] = useState({
+    file: null,
     name: "",
     assignedTo: "",
-    isPaid: "",
-    paymentType: "En Espèces",
-    avance: "",
+    payments: [],
     totalPrice: "",
     company: "",
     destination: "",
@@ -27,6 +26,7 @@ const AddFileModal = ({ isOpen, toggleModal, allEmployees, fetchFiles }) => {
   });
 
   const { token } = useContext(AuthContext);
+
   const handleFileChange = (e) => {
     setNewFile({ ...newFile, file: e.target.files[0] });
   };
@@ -35,8 +35,44 @@ const AddFileModal = ({ isOpen, toggleModal, allEmployees, fetchFiles }) => {
     setNewFile({ ...newFile, [e.target.name]: e.target.value });
   };
 
+  const handlePaymentInputChange = (index, e) => {
+    const updatedPayments = [...newFile.payments];
+    updatedPayments[index][e.target.name] = e.target.value;
+    setNewFile({ ...newFile, payments: updatedPayments });
+  };
+
+  const handleAddPayment = () => {
+    setNewFile({
+      ...newFile,
+      payments: [
+        ...newFile.payments,
+        { amount: "", paymentType: "En Espèces", date: "" },
+      ],
+    });
+  };
+
+  const handleRemovePayment = (index) => {
+    const updatedPayments = [...newFile.payments];
+    updatedPayments.splice(index, 1);
+    setNewFile({ ...newFile, payments: updatedPayments });
+  };
+
   const handleSubmit = async () => {
     try {
+      const formData = new FormData();
+      formData.append("file", newFile.file);
+      formData.append("name", newFile.file.name);
+      formData.append("assignedTo", newFile.assignedTo);
+      formData.append("totalPrice", newFile.totalPrice);
+      formData.append("company", newFile.company);
+      formData.append("destination", newFile.destination);
+      formData.append("post", newFile.post);
+      newFile.payments.forEach((payment, index) => {
+        formData.append(`payments[${index}][amount]`, payment.amount);
+        formData.append(`payments[${index}][paymentType]`, payment.paymentType);
+        formData.append(`payments[${index}][date]`, payment.date);
+      });
+
       const config = {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -46,7 +82,7 @@ const AddFileModal = ({ isOpen, toggleModal, allEmployees, fetchFiles }) => {
 
       const response = await axios.post(
         process.env.REACT_APP_BASE_URL + "files/add",
-        newFile,
+        formData,
         config
       );
       console.log(response.data);
@@ -63,11 +99,11 @@ const AddFileModal = ({ isOpen, toggleModal, allEmployees, fetchFiles }) => {
       <ModalBody>
         <Form>
           <FormGroup>
-            <Label for='name'>Titre</Label>
+            <Label for='file'>Fichier</Label>
             <Input
               type='file'
-              name='name'
-              id='name'
+              name='file'
+              id='file'
               onChange={handleFileChange}
               required
             />
@@ -89,46 +125,58 @@ const AddFileModal = ({ isOpen, toggleModal, allEmployees, fetchFiles }) => {
               ))}
             </Input>
           </FormGroup>
-          {/* <FormGroup>
-            <Label for='status'>Status</Label>
-            <Input
-              id='isPaid'
-              name='isPaid'
-              type='select'
-              value={newFile.isPaid}
-              onChange={handleInputChange}
-              required>
-              <option value={true}>Paid</option>
-              <option value={false}>Not Paid</option>
-            </Input>
-          </FormGroup> */}
-          <FormGroup>
-            <Label for='paymentType'>Type du paiement</Label>
-            <Input
-              id='paymentType'
-              name='paymentType'
-              type='select'
-              value={newFile.paymentType}
-              onChange={handleInputChange}
-              required>
-              <option value='En Espèces'>En Espèces</option>
-              <option value='Virement'>Virement</option>
-              <option value='Chèque'>Chèque</option>
-            </Input>
-          </FormGroup>
-
-          <FormGroup>
-            <Label for='avance'>Avance</Label>
-            <Input
-              type='number'
-              name='avance'
-              id='avance'
-              value={newFile.avance}
-              onChange={handleInputChange}
-              required
-              onWheel={(e) => e.target.blur()}
-            />
-          </FormGroup>
+          {newFile.payments.map((payment, index) => (
+            <div key={index} className='border  border-primary rounded p-2'>
+              <FormGroup>
+                <Label for={`payments[${index}][amount]`}>Montant</Label>
+                <Input
+                  type='number'
+                  name='amount'
+                  id={`payments[${index}][amount]`}
+                  value={payment.amount}
+                  onChange={(e) => handlePaymentInputChange(index, e)}
+                  required
+                  onWheel={(e) => e.target.blur()}
+                />
+              </FormGroup>
+              <FormGroup>
+                <Label for={`payments[${index}][paymentType]`}>
+                  Type du paiement
+                </Label>
+                <Input
+                  id={`payments[${index}][paymentType]`}
+                  name='paymentType'
+                  type='select'
+                  value={payment.paymentType}
+                  onChange={(e) => handlePaymentInputChange(index, e)}
+                  required>
+                  <option value='En Espèces'>En Espèces</option>
+                  <option value='Virement'>Virement</option>
+                  <option value='Chèque'>Chèque</option>
+                </Input>
+              </FormGroup>
+              <FormGroup>
+                <Label for={`payments[${index}][date]`}>Date</Label>
+                <Input
+                  type='date'
+                  name='date'
+                  id={`payments[${index}][date]`}
+                  value={payment.date}
+                  onChange={(e) => handlePaymentInputChange(index, e)}
+                  required
+                />
+              </FormGroup>
+              <Button
+                color='danger'
+                onClick={() => handleRemovePayment(index)}
+                className='mb-3'>
+                Supprimer Paiement
+              </Button>
+            </div>
+          ))}
+          <Button color='primary my-2' onClick={handleAddPayment}>
+            Ajouter Paiement
+          </Button>
           <FormGroup>
             <Label for='totalPrice'>Montant Total</Label>
             <Input

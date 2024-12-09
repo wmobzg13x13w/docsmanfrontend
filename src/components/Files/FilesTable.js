@@ -152,15 +152,26 @@ const FilesTable = () => {
                           " " +
                           tdata.assignedTo.lastName}
                       </CardSubtitle>
+                      {/* <p className='mb-1'>
+                        Type de Paiement: {tdata.}
+                      </p> */}
                       <p className='mb-1'>
-                        Type de Paiement: {tdata.paymentType}
+                        Avance:{" "}
+                        {tdata.payments.reduce((total, payment) => {
+                          return total + payment.amount;
+                        }, 0)}
+                        DT
                       </p>
-                      <p className='mb-1'>Avance: {tdata.avance} DT</p>
                       <p className='mb-1'>
                         Montant Total: {tdata.totalPrice} DT
                       </p>
                       <p className='mb-1'>
-                        Reste à Payer: {tdata.totalPrice - tdata.avance} DT
+                        Reste à Payer:{" "}
+                        {tdata.totalPrice -
+                          tdata.payments.reduce((total, payment) => {
+                            return total + payment.amount;
+                          }, 0)}{" "}
+                        DT
                       </p>
                       <p className='mb-1'>Société: {tdata.company}</p>
                       <div className='d-flex gap-2'>

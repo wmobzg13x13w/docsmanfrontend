@@ -1,6 +1,7 @@
 import { lazy } from "react";
 import { Navigate } from "react-router-dom";
 import Dashboard from "../views/Dashboard.js";
+import Expenses from "../components/Expenses/Expenses.js";
 
 /****Layouts*****/
 const FullLayout = lazy(() => import("../layouts/FullLayout.js"));
@@ -31,6 +32,7 @@ const ThemeRoutes = [
       { path: "/files", element: <Files /> },
       { path: "/employees", element: <Employees /> },
       { path: "/dashboard", element: <Dashboard /> },
+      { path: "/expenses", element: <Expenses /> },
     ],
   },
   {

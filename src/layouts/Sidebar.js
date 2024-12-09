@@ -21,6 +21,11 @@ const navigation = [
     href: "/employees",
     icon: "bi bi-people-fill",
   },
+  {
+    title: "Dépenses",
+    href: "/expenses",
+    icon: "bi bi-cash-stack",
+  },
 ];
 
 const Sidebar = () => {

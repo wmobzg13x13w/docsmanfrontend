@@ -12,6 +12,7 @@ import {
 } from "reactstrap";
 import { AuthContext } from "../../contexts/AuthContext";
 import axios from "axios";
+
 const EditFileModal = ({
   isOpen,
   toggleModal,
@@ -28,13 +29,11 @@ const EditFileModal = ({
   const [file, setfile] = useState({
     name: "",
     assignedTo: "",
-    isPaid: "",
-    paymentType: "",
-    avance: "",
     totalPrice: "",
     company: "",
     destination: "",
     post: "",
+    payments: [],
   });
 
   const fetchFile = useCallback(async () => {
@@ -53,7 +52,14 @@ const EditFileModal = ({
         config
       );
       const file = response.data;
-      setfile(file);
+      const updatedPayments = file.payments.map((payment) => ({
+        ...payment,
+        date: payment.date
+          ? new Date(payment.date).toISOString().split("T")[0]
+          : "",
+      }));
+
+      setfile({ ...file, payments: updatedPayments });
     } catch (error) {
       console.error("Error fetching file:", error);
       throw error;
@@ -66,6 +72,28 @@ const EditFileModal = ({
 
   const handleInputChange = (e) => {
     setfile({ ...file, [e.target.name]: e.target.value });
+  };
+
+  const handlePaymentInputChange = (index, e) => {
+    const updatedPayments = [...file.payments];
+    updatedPayments[index][e.target.name] = e.target.value;
+    setfile({ ...file, payments: updatedPayments });
+  };
+
+  const handleAddPayment = () => {
+    setfile({
+      ...file,
+      payments: [
+        ...file.payments,
+        { amount: "", paymentType: "En Espèces", date: "" },
+      ],
+    });
+  };
+
+  const handleRemovePayment = (index) => {
+    const updatedPayments = [...file.payments];
+    updatedPayments.splice(index, 1);
+    setfile({ ...file, payments: updatedPayments });
   };
 
   const toggletoggle = () => {
@@ -85,7 +113,18 @@ const EditFileModal = ({
 
       const response = await axios.patch(
         `${process.env.REACT_APP_BASE_URL}files/${selectedFile}`,
-        file,
+        {
+          assignedTo: file.assignedTo,
+          totalPrice: file.totalPrice,
+          company: file.company,
+          destination: file.destination,
+          post: file.post,
+          payments: file.payments.map((payment) => ({
+            amount: payment.amount,
+            paymentType: payment.paymentType,
+            date: payment.date,
+          })),
+        },
         config
       );
       console.log(response.data);
@@ -125,46 +164,6 @@ const EditFileModal = ({
                 </option>
               ))}
             </Input>
-          </FormGroup>
-          <FormGroup>
-            <Label for='status'>Status</Label>
-            <Input
-              id='isPaid'
-              name='isPaid'
-              type='select'
-              value={file.isPaid}
-              onChange={handleInputChange}
-              required>
-              <option value={true}>Payé</option>
-              <option value={false}>Non Payé</option>
-            </Input>
-          </FormGroup>
-          <FormGroup>
-            <Label for='paymentType'>Type du paiement</Label>
-            <Input
-              id='paymentType'
-              name='paymentType'
-              type='select'
-              value={file.paymentType}
-              onChange={handleInputChange}
-              required>
-              <option value='En Espèces'>En Espèces</option>
-              <option value='Virement'>Virement</option>
-              <option value='Chèque'>Chèque</option>
-            </Input>
-          </FormGroup>
-
-          <FormGroup>
-            <Label for='avance'>Avance</Label>
-            <Input
-              type='number'
-              name='avance'
-              id='avance'
-              value={file.avance}
-              onChange={handleInputChange}
-              required
-              onWheel={(e) => e.target.blur()}
-            />
           </FormGroup>
           <FormGroup>
             <Label for='totalPrice'>Total Price</Label>
@@ -211,6 +210,58 @@ const EditFileModal = ({
               required
             />
           </FormGroup>
+          {file.payments.map((payment, index) => (
+            <div key={index} className='border  border-primary rounded p-2'>
+              <FormGroup>
+                <Label for={`payments[${index}][amount]`}>Montant</Label>
+                <Input
+                  type='number'
+                  name='amount'
+                  id={`payments[${index}][amount]`}
+                  value={payment.amount}
+                  onChange={(e) => handlePaymentInputChange(index, e)}
+                  required
+                  onWheel={(e) => e.target.blur()}
+                />
+              </FormGroup>
+              <FormGroup>
+                <Label for={`payments[${index}][paymentType]`}>
+                  Type du paiement
+                </Label>
+                <Input
+                  id={`payments[${index}][paymentType]`}
+                  name='paymentType'
+                  type='select'
+                  value={payment.paymentType}
+                  onChange={(e) => handlePaymentInputChange(index, e)}
+                  required>
+                  <option value='En Espèces'>En Espèces</option>
+                  <option value='Virement'>Virement</option>
+                  <option value='Chèque'>Chèque</option>
+                </Input>
+              </FormGroup>
+              <FormGroup>
+                <Label for={`payments[${index}][date]`}>Date</Label>
+                <Input
+                  type='date'
+                  name='date'
+                  id={`payments[${index}][date]`}
+                  value={payment.date}
+                  onChange={(e) => handlePaymentInputChange(index, e)}
+                  required
+                />
+              </FormGroup>
+              <Button
+                color='danger'
+                onClick={() => handleRemovePayment(index)}
+                className='mb-3'>
+                Supprimer Paiement
+              </Button>
+            </div>
+          ))}
+          <Button color='primary my-2' onClick={handleAddPayment}>
+            Ajouter Paiement
+          </Button>
         </Form>
       </ModalBody>
       <ModalFooter>
@@ -224,4 +275,5 @@ const EditFileModal = ({
     </Modal>
   );
 };
+
 export default EditFileModal;
