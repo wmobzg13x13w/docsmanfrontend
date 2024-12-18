@@ -12,7 +12,7 @@ const navigation = [
     icon: "bi bi-speedometer2",
   },
   {
-    title: "Files",
+    title: "Documents",
     href: "/files",
     icon: "bi bi-file",
   },

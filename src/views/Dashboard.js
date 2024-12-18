@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useContext, useEffect, useState } from "react";
-import { Col, Row } from "reactstrap";
+import { CardTitle, Col, Row } from "reactstrap";
 import FilesChart from "../components/dashboard/FilesChart";
 import { AuthContext } from "../contexts/AuthContext";
 import ArcChart from "../components/dashboard/ArcChart";
@@ -11,7 +11,7 @@ const Dashboard = () => {
   const { token } = useContext(AuthContext);
   const [files, setFiles] = useState([]);
 
-  const [paymentsTotalAmount, setPaymentsTotalAmount] = useState(null);
+  const [paymentsTotalAmount, setPaymentsTotalAmount] = useState(0);
 
   useEffect(() => {
     const fetchTotalAmount = async () => {
@@ -26,9 +26,9 @@ const Dashboard = () => {
     };
 
     fetchTotalAmount();
-  }, []);
+  }, [token]);
 
-  const [totalAmount, setTotalAmount] = useState(null);
+  const [totalAmount, setTotalAmount] = useState(0);
 
   useEffect(() => {
     const fetchTotalAmount = async () => {
@@ -51,9 +51,9 @@ const Dashboard = () => {
     };
 
     fetchTotalAmount();
-  }, []);
+  }, [token]);
 
-  const [expensesTotalAmount, setExpensesTotalAmount] = useState(null);
+  const [expensesTotalAmount, setExpensesTotalAmount] = useState(0);
 
   useEffect(() => {
     const fetchExpensesTotalAmount = async () => {
@@ -76,7 +76,7 @@ const Dashboard = () => {
     };
 
     fetchExpensesTotalAmount();
-  }, []);
+  }, [token]);
 
   const fetchFiles = async () => {
     if (token) {
@@ -101,9 +101,36 @@ const Dashboard = () => {
   useEffect(() => {
     fetchFiles();
   }, [token]);
+
+  const [payments, setPayments] = useState([]);
+
+  const fetchPayments = async () => {
+    if (token) {
+      try {
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+
+        const response = await axios.get(
+          `${process.env.REACT_APP_BASE_URL}payment/getall`,
+          config
+        );
+        setPayments(response.data);
+      } catch (error) {
+        console.error("Error fetching payments:", error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchPayments();
+  }, [token]);
   return (
     <>
       <Row>
+        <CardTitle tag='h5'>Statistiques de ce mois</CardTitle>
         <Col md={4}>
           <StatsCard
             value={paymentsTotalAmount + " DT"}
@@ -132,7 +159,7 @@ const Dashboard = () => {
             <FilesChart files={files} />
           </Col>
           <Col sm='6' lg='6' xl='5' xxl='4' className='chart-col'>
-            <ArcChart files={files} />
+            <ArcChart files={files} payments={payments} />
           </Col>
         </Row>
       </div>

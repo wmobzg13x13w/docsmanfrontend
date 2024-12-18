@@ -3,7 +3,7 @@ import { Doughnut } from "react-chartjs-2";
 import { Chart, ArcElement, Tooltip, Legend } from "chart.js/auto";
 import { Alert } from "reactstrap";
 
-const ArcChart = ({ files }) => {
+const ArcChart = ({ files, payments }) => {
   // Register the necessary chart components
   Chart.register(ArcElement, Tooltip, Legend);
 
@@ -15,12 +15,14 @@ const ArcChart = ({ files }) => {
     );
   }
 
+  console.log(payments);
   // Calculate the total paid amount and the total amount to pay
-  const totalPaidAmount = files.reduce((total, file) => total + file.avance, 0);
-  const totalToPayAmount = files.reduce(
-    (total, file) => total + (file.totalPrice - file.avance),
+  const totalPaidAmount = payments.reduce(
+    (total, payment) => total + payment.amount,
     0
   );
+  const totalToPayAmount =
+    files.reduce((total, file) => total + file.totalPrice, 0) - totalPaidAmount;
 
   // Prepare the chart data
   const data = {

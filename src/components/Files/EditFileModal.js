@@ -22,11 +22,9 @@ const EditFileModal = ({
   setSelectedFile,
   fetchFiles,
 }) => {
-  console.log(selectedFile);
-
   const { token } = useContext(AuthContext);
 
-  const [file, setfile] = useState({
+  const [file, setFile] = useState({
     name: "",
     assignedTo: "",
     totalPrice: "",
@@ -36,10 +34,10 @@ const EditFileModal = ({
     payments: [],
   });
 
+  const [error, setError] = useState(null);
+
   const fetchFile = useCallback(async () => {
-    if (!token) {
-      return; // Wait for the token to be initialized
-    }
+    if (!token || !selectedFile) return;
 
     try {
       const config = {
@@ -48,40 +46,43 @@ const EditFileModal = ({
         },
       };
       const response = await axios.get(
-        process.env.REACT_APP_BASE_URL + `files/${selectedFile}`,
+        `${process.env.REACT_APP_BASE_URL}files/${selectedFile}`,
         config
       );
-      const file = response.data;
-      const updatedPayments = file.payments.map((payment) => ({
+
+      const fetchedFile = response.data;
+
+      const updatedPayments = fetchedFile.payments.map((payment) => ({
         ...payment,
         date: payment.date
           ? new Date(payment.date).toISOString().split("T")[0]
           : "",
       }));
 
-      setfile({ ...file, payments: updatedPayments });
-    } catch (error) {
-      console.error("Error fetching file:", error);
-      throw error;
+      setFile({ ...fetchedFile, payments: updatedPayments });
+      setError(null);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load file details. Please try again later.");
     }
-  }, [token]);
+  }, [token, selectedFile]);
 
   useEffect(() => {
-    fetchFile();
-  }, [fetchFile]);
+    if (isOpen) fetchFile();
+  }, [fetchFile, isOpen]);
 
   const handleInputChange = (e) => {
-    setfile({ ...file, [e.target.name]: e.target.value });
+    setFile({ ...file, [e.target.name]: e.target.value });
   };
 
   const handlePaymentInputChange = (index, e) => {
     const updatedPayments = [...file.payments];
     updatedPayments[index][e.target.name] = e.target.value;
-    setfile({ ...file, payments: updatedPayments });
+    setFile({ ...file, payments: updatedPayments });
   };
 
   const handleAddPayment = () => {
-    setfile({
+    setFile({
       ...file,
       payments: [
         ...file.payments,
@@ -93,17 +94,10 @@ const EditFileModal = ({
   const handleRemovePayment = (index) => {
     const updatedPayments = [...file.payments];
     updatedPayments.splice(index, 1);
-    setfile({ ...file, payments: updatedPayments });
-  };
-
-  const toggletoggle = () => {
-    toggleModal();
-    setSelectedFile(null);
+    setFile({ ...file, payments: updatedPayments });
   };
 
   const handleSubmit = async () => {
-    setSelectedFile(null);
-    toggleModal();
     try {
       const config = {
         headers: {
@@ -119,29 +113,35 @@ const EditFileModal = ({
           company: file.company,
           destination: file.destination,
           post: file.post,
-          payments: file.payments.map((payment) => ({
-            amount: payment.amount,
-            paymentType: payment.paymentType,
-            date: payment.date,
-          })),
+          payments: file.payments,
         },
         config
       );
+
       console.log(response.data);
+      fetchFiles();
       toggleModal();
-    } catch (error) {
-      console.error("Error adding file:", error);
+      setFile({
+        name: "",
+        assignedTo: "",
+        totalPrice: "",
+        company: "",
+        destination: "",
+        post: "",
+        payments: [],
+      });
+      setSelectedFile(null);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to update file. Please try again.");
     }
-    fetchFiles();
   };
 
   return (
-    <Modal
-      isOpen={isOpen}
-      toggle={toggletoggle}
-      modalClassName='bg-transparant'>
-      <ModalHeader toggle={toggletoggle}>Edit File</ModalHeader>
+    <Modal isOpen={isOpen} toggle={toggleModal}>
+      <ModalHeader toggle={toggleModal}>Edit File</ModalHeader>
       <ModalBody>
+        {error && <p className='text-danger'>{error}</p>}
         <Form>
           <FormGroup>
             <p>
@@ -154,13 +154,13 @@ const EditFileModal = ({
               id='assignedTo'
               name='assignedTo'
               type='select'
-              value={file.assignedTo._id}
+              value={file.assignedTo?._id || ""}
               onChange={handleInputChange}
               required>
               <option hidden>Employé</option>
               {allEmployees.map((employee) => (
                 <option key={employee._id} value={employee._id}>
-                  {employee.firstName + " " + employee.lastName}
+                  {employee.firstName} {employee.lastName}
                 </option>
               ))}
             </Input>
@@ -211,7 +211,7 @@ const EditFileModal = ({
             />
           </FormGroup>
           {file.payments.map((payment, index) => (
-            <div key={index} className='border  border-primary rounded p-2'>
+            <div key={index} className='border border-primary rounded p-2'>
               <FormGroup>
                 <Label for={`payments[${index}][amount]`}>Montant</Label>
                 <Input

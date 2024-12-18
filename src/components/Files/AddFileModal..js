@@ -125,6 +125,52 @@ const AddFileModal = ({ isOpen, toggleModal, allEmployees, fetchFiles }) => {
               ))}
             </Input>
           </FormGroup>
+
+          <FormGroup>
+            <Label for='totalPrice'>Montant Total</Label>
+            <Input
+              type='number'
+              name='totalPrice'
+              id='totalPrice'
+              value={newFile.totalPrice}
+              onChange={handleInputChange}
+              required
+              onWheel={(e) => e.target.blur()}
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label for='company'>Société</Label>
+            <Input
+              type='text'
+              name='company'
+              id='company'
+              value={newFile.company}
+              onChange={handleInputChange}
+              required
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label for='post'>Post</Label>
+            <Input
+              type='text'
+              name='post'
+              id='post'
+              value={newFile.post}
+              onChange={handleInputChange}
+              required
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label for='destination'>Destination</Label>
+            <Input
+              type='text'
+              name='destination'
+              id='destination'
+              value={newFile.destination}
+              onChange={handleInputChange}
+              required
+            />
+          </FormGroup>
           {newFile.payments.map((payment, index) => (
             <div key={index} className='border  border-primary rounded p-2'>
               <FormGroup>
@@ -177,51 +223,6 @@ const AddFileModal = ({ isOpen, toggleModal, allEmployees, fetchFiles }) => {
           <Button color='primary my-2' onClick={handleAddPayment}>
             Ajouter Paiement
           </Button>
-          <FormGroup>
-            <Label for='totalPrice'>Montant Total</Label>
-            <Input
-              type='number'
-              name='totalPrice'
-              id='totalPrice'
-              value={newFile.totalPrice}
-              onChange={handleInputChange}
-              required
-              onWheel={(e) => e.target.blur()}
-            />
-          </FormGroup>
-          <FormGroup>
-            <Label for='company'>Société</Label>
-            <Input
-              type='text'
-              name='company'
-              id='company'
-              value={newFile.company}
-              onChange={handleInputChange}
-              required
-            />
-          </FormGroup>
-          <FormGroup>
-            <Label for='post'>Post</Label>
-            <Input
-              type='text'
-              name='post'
-              id='post'
-              value={newFile.post}
-              onChange={handleInputChange}
-              required
-            />
-          </FormGroup>
-          <FormGroup>
-            <Label for='destination'>Destination</Label>
-            <Input
-              type='text'
-              name='destination'
-              id='destination'
-              value={newFile.destination}
-              onChange={handleInputChange}
-              required
-            />
-          </FormGroup>
         </Form>
       </ModalBody>
       <ModalFooter>

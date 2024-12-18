@@ -22,9 +22,24 @@ const PaymentStatusChart = ({ files }) => {
     Legend
   );
 
+  console.log(files);
+
   // Calculate the number of paid and not paid files
-  const paidFiles = files.filter((file) => file.avance === file.totalPrice);
-  const notPaidFiles = files.filter((file) => file.avance !== file.totalPrice);
+  const paidFiles = files.filter((file) => {
+    const totalPayments = file.payments.reduce(
+      (sum, payment) => sum + payment.amount,
+      0
+    );
+    return totalPayments === file.totalPrice;
+  });
+
+  const notPaidFiles = files.filter((file) => {
+    const totalPayments = file.payments.reduce(
+      (sum, payment) => sum + payment.amount,
+      0
+    );
+    return totalPayments !== file.totalPrice;
+  });
 
   // Prepare the chart data
   const data = {
