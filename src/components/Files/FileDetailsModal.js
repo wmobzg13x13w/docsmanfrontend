@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 import {
   PDFViewer,
   Document,
@@ -6,9 +6,13 @@ import {
   Text,
   View,
   StyleSheet,
+  Image, // Import Image component
 } from "@react-pdf/renderer";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 
+import logo from "./../../assets/images/logos/lps_black.png";
+
+// Define styles
 const styles = StyleSheet.create({
   page: {
     flexDirection: "column",
@@ -19,6 +23,13 @@ const styles = StyleSheet.create({
   },
   invoice: {
     fontFamily: "Helvetica",
+  },
+  logo: {
+    position: "absolute",
+    top: 20,
+    right: 20,
+    width: 100, // Adjust width as needed
+    height: "auto",
   },
   table: {
     display: "table",
@@ -39,19 +50,25 @@ const styles = StyleSheet.create({
   tableCell: { margin: "auto", marginTop: 5, fontSize: 10 },
 });
 
+// InvoiceDocument component
 const InvoiceDocument = ({ file }) => (
   <Document>
     <Page size='A4' style={styles.page}>
+      <Image
+        src={logo} // Replace with the path to your logo
+        style={styles.logo}
+      />
       <View style={styles.section}>
-        <Text style={styles.invoice}>Votre Société</Text>
-        <Text>Votre Adresse</Text>
-        <Text>Votre Numéro de Téléphone</Text>
+        <Text style={styles.invoice}>LPS Consulting</Text>
+        {/* <Text>Votre Adresse</Text>
+        <Text>Votre Numéro de Téléphone</Text> */}
       </View>
 
       <View style={styles.section}>
         <Text>Facturé à:</Text>
-        <Text>{file.company}</Text>
-        <Text>{file.destination}</Text>
+        <Text>
+          {file.assignedTo.firstName} {file.assignedTo.lastName}
+        </Text>
       </View>
 
       <View style={styles.table}>
@@ -85,30 +102,28 @@ const InvoiceDocument = ({ file }) => (
       </View>
 
       <View style={styles.section}>
-        <Text>Total: {file.totalPrice} DT</Text> {/* Display the total */}
+        <Text>Total: {file.totalPrice} DT</Text>
         <Text>
           Total Payé: {file.payments.reduce((sum, p) => sum + p.amount, 0)} DT
-        </Text>{" "}
-        {/* Calculate and display total paid */}
+        </Text>
         <Text>
           Reste à Payer:{" "}
           {file.totalPrice -
             file.payments.reduce((sum, p) => sum + p.amount, 0)}{" "}
           DT
-        </Text>{" "}
+        </Text>
       </View>
     </Page>
   </Document>
 );
 
+// FileDetailsModal component
 const FileDetailsModal = ({ isOpen, toggleModal, file }) => {
   return (
     <Modal isOpen={isOpen} toggle={toggleModal}>
       <ModalHeader toggle={toggleModal}>Facture</ModalHeader>
       <ModalBody>
         <PDFViewer width='100%' height='500px'>
-          {" "}
-          {/* Adjust height as needed */}
           <InvoiceDocument file={file} />
         </PDFViewer>
       </ModalBody>
